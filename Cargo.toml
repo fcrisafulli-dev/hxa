@@ -1,0 +1,12 @@
+[package]
+name = "hxa"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Functions and Structs to parse HxA mesh data as specified by Eskil Steenberg"
+repository = "https://github.com/fcrisafulli-dev/hxa"
+readme = "README.md"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
