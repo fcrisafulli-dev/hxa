@@ -17,13 +17,13 @@ macro_rules!  buffer{
 /// Reads enough bytes to produce the desired type
 /// # Example
 /// ```rust
-/// let foo:u32 = read_bytes!(input u32 u32_buffer);
+/// let foo:u32 = read_bytes!(input u32);
 /// ```
 macro_rules!  read_bytes{
     ($r:tt $typ:tt) => {
         {
             let mut buffer = buffer!($typ);
-            $r.read_exact(&mut buffer).unwrap();
+            $r.read_exact(&mut buffer).expect("Expected to read more bytes");
             $typ::from_le_bytes(buffer)
         }
     }
@@ -132,6 +132,7 @@ pub enum HXAMetaDataType{
 	META {
         meta_array: Vec<HXAMeta>
     },
+
 	COUNT,
     Unknown
 }
@@ -456,4 +457,16 @@ impl HXAFile {
     }
 }
 
+impl From<&str> for HXAFile {
+    fn from(value: &str) -> Self {
+        let mut f = BufReader::new(
+            File::open(value)
+            .expect("Failed to open file")
+        );
 
+        let mut new_hxa_file = HXAFile::new();
+        new_hxa_file.read_header(&mut f);
+
+        new_hxa_file
+    }
+}
