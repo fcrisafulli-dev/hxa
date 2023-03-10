@@ -176,9 +176,9 @@ impl From<u8> for HXAMetaDataType{
 
 #[derive(Debug)]
 pub struct HXAMeta{
-    name: String,
-    meta_type: HXAMetaDataType,
-    data_length: u32
+    pub name: String,
+    pub meta_type: HXAMetaDataType,
+    pub data_length: u32
 }
 
 impl HXAMeta {
@@ -279,13 +279,13 @@ impl From<u8> for HXALayerDataType{
 #[derive(Debug)]
 pub struct  HXALayer {
     /// name of the layer. List of predefined names for common usages like uv, reference, blendshapes, weights ...
-    name: String,
+    pub name: String,
 
     /// 2 for uv, 3 for xyz or rgb, 4 for rgba;
-    components: u8,
+    pub components: u8,
 
     /// Stored in the file as a uint8.
-    layer_type: HXALayerDataType
+    pub layer_type: HXALayerDataType
 }
 impl HXALayer {
     fn new() -> Self {
@@ -339,8 +339,8 @@ impl HXALayer {
 
 #[derive(Debug)]
 pub struct HXALayerStack{
-    layer_count: u32,
-    layers: Vec<HXALayer>
+    pub layer_count: u32,
+    pub layers: Vec<HXALayer>
 }
 
 impl HXALayerStack {
@@ -366,16 +366,16 @@ impl HXALayerStack {
 #[derive(Debug)]
 pub struct HXAFile{
     magic_number: u32, //The file begins with a file identifyer. it always has to be the 4 bytes "HxA", See definition of HAX_MAGIC_NUMBER. Since the magic number is always the same we dont store it in this structure even if it is always precent in files.
-	version: u8,
-    node_count: u32, // number of nodes in the file
-    node_array: Vec<HXANode>
+	pub version: u8,
+    pub node_count: u32, // number of nodes in the file
+    pub node_array: Vec<HXANode>
 }
 
 #[derive(Debug)]
 pub struct HXANode {
-    node_type: HXANodeType, //u8, //just 'type', in original spec
-    metadata_count: u32,
-    meta_data: Vec<HXAMeta>,
+    pub node_type: HXANodeType, //u8, //just 'type', in original spec
+    pub metadata_count: u32,
+    pub meta_data: Vec<HXAMeta>,
 }
 
 impl HXANode{
