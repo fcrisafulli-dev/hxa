@@ -7,15 +7,14 @@ fn main() {
 
 
     let mut input = BufReader::new(
-        File::open("untitled.hxa")
+        File::open("sample_models/untitled.hxa")
         .expect("Failed to open file")
     );
 
     let mut hxa_file = hxa::HXAFile::new();
     hxa_file.read_header(&mut input);
-    //hxa_file.read_node(&mut input);
 
-    dbg!(hxa_file);
+    //dbg!(hxa_file);
 
 
     let file_location = input.seek(std::io::SeekFrom::Current (0)).expect("Could not get current position!");

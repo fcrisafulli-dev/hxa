@@ -1,7 +1,6 @@
 
 use std::fs::File;
 use std::io::{BufReader, Read};
-use std::{u32, num};
 use std::str;
 
 /// creates a buffer with the size of the specified type
@@ -21,10 +20,11 @@ macro_rules!  buffer{
 /// let foo:u32 = read_bytes!(input u32 u32_buffer);
 /// ```
 macro_rules!  read_bytes{
-    ($r:tt $typ:tt $b:tt) => {
+    ($r:tt $typ:tt) => {
         {
-            $r.read_exact(&mut $b).unwrap();
-            $typ::from_le_bytes($b)
+            let mut buffer = buffer!($typ);
+            $r.read_exact(&mut buffer).unwrap();
+            $typ::from_le_bytes(buffer)
         }
     }
 }
@@ -191,32 +191,28 @@ impl HXAMeta {
     }
 
     pub fn parse(self: &mut HXAMeta, input: &mut BufReader<File>){
-        let mut u8_buffer = buffer!(u8);
-        let mut u32_buffer = buffer!(u32);
 
         // Length of the name in bytes
-        let name_length:u8 = read_bytes!(input u8 u8_buffer);
+        let name_length:u8 = read_bytes!(input u8);
         
         let mut name_buffer = buffer!(exactly name_length);
         let data_name = read_str!(input name_buffer);
 
         self.name = String::from(data_name);
 
-        self.meta_type = HXAMetaDataType::from(read_bytes!(input u8 u8_buffer));
-        self.data_length = read_bytes!(input u32 u32_buffer);
+        self.meta_type = HXAMetaDataType::from(read_bytes!(input u8));
+        self.data_length = read_bytes!(input u32);
 
         match &mut self.meta_type {
             HXAMetaDataType::INT64 { int_array } => {
-                let mut i64_buffer = buffer!(i64);
                 for _ in 0..self.data_length{
-                    let int64_read = read_bytes!(input i64 i64_buffer);
+                    let int64_read = read_bytes!(input i64);
                     int_array.push(int64_read);
                 }
             }
             HXAMetaDataType::DOUBLE { double_array } => {
-                let mut f64_buffer = buffer!(f64);
                 for _ in 0..self.data_length{
-                    let double_read = read_bytes!(input f64 f64_buffer);
+                    let double_read = read_bytes!(input f64);
                     double_array.push(double_read);
                 }
             },
@@ -300,44 +296,39 @@ impl HXALayer {
     }
 
     fn parse(self: &mut HXALayer, input: &mut BufReader<File>, num_items: &u32) {
-        let mut u32_buffer = buffer!(u32);
-        let mut u8_buffer = buffer!(u8);
-        let mut i32_buffer = buffer!(i32);
-        let mut f32_buffer = buffer!(f32);
-        let mut f64_buffer = buffer!(f64);
 
         // Get the name of the layer
-        let name_length:u8 = read_bytes!(input u8 u8_buffer);
+        let name_length:u8 = read_bytes!(input u8);
         let mut name_buffer = buffer!(exactly name_length);
         let name = read_str!(input name_buffer);
         self.name = String::from(name);
 
         // Get the number of components for the layer
-        self.components = read_bytes!(input u8 u8_buffer);
+        self.components = read_bytes!(input u8);
 
         // Get layer type
-        let u8_layer_type:u8 = read_bytes!(input u8 u8_buffer);
+        let u8_layer_type:u8 = read_bytes!(input u8);
         self.layer_type = HXALayerDataType::from(u8_layer_type);
 
         match &mut self.layer_type {
             HXALayerDataType::UINT8 { uint_array } => {
                 for _ in 0..*num_items{
-                    uint_array.push(read_bytes!(input u8 u8_buffer));
+                    uint_array.push(read_bytes!(input u8));
                 }
             },
             HXALayerDataType::INT32 { int_array } => {
                 for _ in 0..*num_items{
-                    int_array.push(read_bytes!(input i32 i32_buffer));
+                    int_array.push(read_bytes!(input i32));
                 }
             },
             HXALayerDataType::FLOAT { float_array } => {
                 for _ in 0..((*num_items) * (self.components as u32)){
-                    float_array.push(read_bytes!(input f32 f32_buffer));
+                    float_array.push(read_bytes!(input f32));
                 }
             },
             HXALayerDataType::DOUBLE { double_array } => {
                 for _ in 0..*num_items{
-                    double_array.push(read_bytes!(input f64 f64_buffer));
+                    double_array.push(read_bytes!(input f64));
                 }
             },
             HXALayerDataType::Unknown => {},
@@ -360,10 +351,8 @@ impl HXALayerStack {
     }
 
     pub fn parse(self: &mut HXALayerStack, input: &mut BufReader<File>, num_items: &u32){
-        let mut u32_buffer = buffer!(u32);
-        let mut u8_buffer = buffer!(u8);
 
-        self.layer_count = read_bytes!(input u32 u32_buffer);
+        self.layer_count = read_bytes!(input u32);
 
         for _ in 0..self.layer_count{
             let mut new_layer = HXALayer::new();
@@ -398,15 +387,13 @@ impl HXANode{
     }
 
     pub fn parse(self: &mut HXANode, input: &mut BufReader<File>){
-        let mut u32_buffer = buffer!(u32);
-        let mut u8_buffer = buffer!(u8);
 
         //Read node type
-        self.node_type = HXANodeType::from(read_bytes!(input u8 u8_buffer)); 
+        self.node_type = HXANodeType::from(read_bytes!(input u8)); 
 
         
         //Read metadata count
-        self.metadata_count = read_bytes!(input u32 u32_buffer);
+        self.metadata_count = read_bytes!(input u32);
 
         //Get metadata
         for _ in 0 .. self.metadata_count{
@@ -420,15 +407,15 @@ impl HXANode{
         match &mut self.node_type {
             HXANodeType::MetaOnly => (),
             HXANodeType::Geometry { vertex_count, vertex_stack, edge_corner_count, corner_stack, edge_stack, face_count, face_stack } => {
-                *vertex_count = read_bytes!(input u32 u32_buffer);
+                *vertex_count = read_bytes!(input u32);
                 vertex_stack.parse(input, vertex_count);
 
-                *edge_corner_count = read_bytes!(input u32 u32_buffer);
+                *edge_corner_count = read_bytes!(input u32);
                 corner_stack.parse(input, edge_corner_count);
                 edge_stack.parse(input, edge_corner_count);
                 
 
-                *face_count = read_bytes!(input u32 u32_buffer);
+                *face_count = read_bytes!(input u32);
                 face_stack.parse(input, edge_corner_count);
 
                 //following this data will be 3 u32, seems like they contain face info. 
@@ -452,17 +439,14 @@ impl HXAFile {
     }
 
     pub fn read_header(self: &mut HXAFile, input: &mut BufReader<File>){
-        let mut u32_buffer = buffer!(u32);
-        let mut u8_buffer = buffer!(u8);
-
         //Read magic number
-        self.magic_number = read_bytes!{input u32 u32_buffer};
+        self.magic_number = read_bytes!{input u32};
         
         //Read version number
-        self.version = read_bytes!{input u8 u8_buffer};
+        self.version = read_bytes!{input u8};
 
         //Read node count
-        self.node_count = read_bytes!{input u32 u32_buffer};
+        self.node_count = read_bytes!{input u32};
 
         for _ in 0..self.node_count{
             let mut new_node = HXANode::new();
