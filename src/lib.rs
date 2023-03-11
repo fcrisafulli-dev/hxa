@@ -56,6 +56,7 @@ macro_rules!  read_str{
             match result {
                 Ok(_) => (),
                 Err(_) => {
+                    whereami!($reader);
                     println!("read_type: {}",stringify!($buffer));
                     panic!("Expected to read more bytes")
                 },
@@ -324,6 +325,7 @@ impl HXALayer {
 
     fn parse(self: &mut HXALayer, input: &mut BufReader<File>, num_items: &u32) {
         // Get the name of the layer
+        //whereami!(input);
         let name_length:u8 = read_bytes!(input u8);
         let mut name_buffer = buffer!(exactly name_length);
         let name = read_str!(input name_buffer);
@@ -338,12 +340,12 @@ impl HXALayer {
 
         match &mut self.layer_type {
             HXALayerDataType::UINT8 { uint_array } => {
-                for _ in 0..*num_items{
+                for _ in 0..((*num_items) * (self.components as u32)){
                     uint_array.push(read_bytes!(input u8));
                 }
             },
             HXALayerDataType::INT32 { int_array } => {
-                for _ in 0..*num_items{
+                for _ in 0..((*num_items) * (self.components as u32)){
                     int_array.push(read_bytes!(input i32));
                 }
             },
@@ -353,7 +355,7 @@ impl HXALayer {
                 }
             },
             HXALayerDataType::DOUBLE { double_array } => {
-                for _ in 0..*num_items{
+                for _ in 0..((*num_items) * (self.components as u32)){
                     double_array.push(read_bytes!(input f64));
                 }
             },
