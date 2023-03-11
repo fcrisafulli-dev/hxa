@@ -325,7 +325,6 @@ impl HXALayer {
     fn parse(self: &mut HXALayer, input: &mut BufReader<File>, num_items: &u32) {
         // Get the name of the layer
         let name_length:u8 = read_bytes!(input u8);
-        whereami!(input);
         let mut name_buffer = buffer!(exactly name_length);
         let name = read_str!(input name_buffer);
         self.name = String::from(name);
