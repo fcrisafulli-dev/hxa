@@ -1,7 +1,16 @@
 
 use std::fs::File;
-use std::io::{BufReader, Read};
+use std::io::{BufReader, Read, Seek};
 use std::str;
+
+macro_rules! whereami {
+    ($reader:tt) => {
+        {
+            let file_location = $reader.seek(std::io::SeekFrom::Current(0)).expect("Could not get current position!");
+            println!("I am here:  {:X?}  !",file_location)
+        }
+    };
+}
 
 /// creates a buffer with the size of the specified type
 macro_rules!  buffer{
@@ -23,7 +32,17 @@ macro_rules!  read_bytes{
     ($r:tt $typ:tt) => {
         {
             let mut buffer = buffer!($typ);
-            $r.read_exact(&mut buffer).expect("Expected to read more bytes");
+            let result = $r.read_exact(&mut buffer);
+            match result {
+                Ok(_) => {
+                    // whereami!($r);
+                    // println!("^^ Location, OK read type:{}",stringify!($typ))
+                },
+                Err(_) => {
+                    println!("read_type: {}",stringify!($typ));
+                    panic!("Failed read_bytes")
+                },
+            }
             $typ::from_le_bytes(buffer)
         }
     }
@@ -33,7 +52,14 @@ macro_rules!  read_bytes{
 macro_rules!  read_str{
     ($reader:ident $buffer:tt) => {
         {
-            $reader.read_exact(&mut $buffer).expect("Expected to read more bytes");
+            let result = $reader.read_exact(&mut $buffer);
+            match result {
+                Ok(_) => (),
+                Err(_) => {
+                    println!("read_type: {}",stringify!($buffer));
+                    panic!("Expected to read more bytes")
+                },
+            }
             str::from_utf8(&$buffer).expect("Expected a valid utf8 format")
         }
     }
@@ -297,9 +323,9 @@ impl HXALayer {
     }
 
     fn parse(self: &mut HXALayer, input: &mut BufReader<File>, num_items: &u32) {
-
         // Get the name of the layer
         let name_length:u8 = read_bytes!(input u8);
+        whereami!(input);
         let mut name_buffer = buffer!(exactly name_length);
         let name = read_str!(input name_buffer);
         self.name = String::from(name);
@@ -404,6 +430,7 @@ impl HXANode{
             // println!("name length:{} {:?} {:?}",name_length, name_buffer, s);
         }
 
+
         //Extract data based on node type
         match &mut self.node_type {
             HXANodeType::MetaOnly => (),
@@ -411,13 +438,14 @@ impl HXANode{
                 *vertex_count = read_bytes!(input u32);
                 vertex_stack.parse(input, vertex_count);
 
+
                 *edge_corner_count = read_bytes!(input u32);
                 corner_stack.parse(input, edge_corner_count);
                 edge_stack.parse(input, edge_corner_count);
                 
 
                 *face_count = read_bytes!(input u32);
-                face_stack.parse(input, edge_corner_count);
+                face_stack.parse(input, &face_count);
 
                 //following this data will be 3 u32, seems like they contain face info. 
                 //Im assuming the HxA exporter im using is not complete yet
