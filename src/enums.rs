@@ -1,5 +1,4 @@
 use crate::meta::HXAMeta; //how are circular imports even allowed
-use crate::layer::HXALayerStack;
 use crate::node::HXAGeometryNode; //how are circular imports even allowed
 
 #[derive(Debug)]

@@ -23,6 +23,8 @@ fn main() {
         .expect("Expected to find a normal layer")
         .as_vec_f32();
 
+    dbg!(vertex_positions);
+    dbg!(vertex_normals);
 
     println!("Done");
 }

@@ -1,8 +1,8 @@
 use crate::meta::HXAMeta;
 use crate::node::{HXANode, HXAGeometryNode};
-use crate::macros::{buffer,read_bytes,whereami,read_str};
+use crate::macros::{buffer,read_bytes};
 use std::fs::File;
-use std::io::{BufReader, Read, Seek};
+use std::io::{BufReader, Read};
 use std::str;
 
 #[derive(Debug)]

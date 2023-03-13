@@ -2,9 +2,9 @@
 use crate::layer::HXALayerStack;
 use crate::meta::HXAMeta;
 use crate::enums::HXANodeType;
-use crate::macros::{buffer,read_bytes,whereami,read_str};
+use crate::macros::{buffer,read_bytes};
 use std::fs::File;
-use std::io::{BufReader, Read, Seek};
+use std::io::{BufReader, Read};
 
 #[derive(Debug)]
 pub struct HXANode {
