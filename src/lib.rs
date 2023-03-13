@@ -3,7 +3,11 @@ pub mod meta;
 pub mod node;
 pub mod layer;
 pub mod hxfile;
-pub use hxfile::HXAFile;
+pub mod conventions;
+
 mod macros;
 
-pub mod conventions;
+pub use hxfile::HXAFile;
+pub use layer::{HXALayer,HXALayerStack};
+pub use meta::HXAMeta;
+pub use node::{HXANode,HXAGeometryNode};
