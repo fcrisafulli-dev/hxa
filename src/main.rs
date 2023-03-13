@@ -7,20 +7,22 @@ fn main() {
 
     //dbg!(my_hxa);
 
-    let model_geometry = my_hxa.get_first_geometry().expect("Expected to find a geometry node").1;
+    let model_geometry = my_hxa.get_first_geometry().expect("Expected to find a geometry node").0;
 
-    dbg!(model_geometry);
+    use hxa::conventions::{hard,soft};
 
-    let vert_vec = model_geometry.vertex_stack
-        .find(hxa::conventions::hard::BASE_VERTEX_LAYER_NAME).expect("Expected to find a vertex layer")
+    let vertex_stack = &model_geometry.vertex_stack;
+
+    let vertex_positions = vertex_stack
+            .find(hard::BASE_VERTEX_LAYER_NAME)
+            .expect("Expected to find a vertex layer")
+            .as_vec_f32();
+
+    let vertex_normals = vertex_stack
+        .find(soft::LAYER_NORMALS)
+        .expect("Expected to find a normal layer")
         .as_vec_f32();
 
-    
-
-    dbg!(vert_vec);
-    // let file_location = input.seek(std::io::SeekFrom::Current (0)).expect("Could not get current position!");
-    // println!("{:X?}",file_location);
-    // dbg!(file_location);
 
     println!("Done");
 }

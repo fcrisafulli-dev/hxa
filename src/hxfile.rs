@@ -1,3 +1,4 @@
+use crate::meta::HXAMeta;
 use crate::node::{HXANode, HXAGeometryNode};
 use crate::macros::{buffer,read_bytes,whereami,read_str};
 use std::fs::File;
@@ -43,7 +44,7 @@ impl HXAFile {
     /// Returns the first geometry node found
     /// 
     /// 
-    /// The Some<> is a tuple with the General node in `0` and the specific node in `1`
+    /// The Some<> is a tuple with the metadata in `0` and the specific node in `1`
     /// 
     /// #### Deprecation
     /// The underlying structure of this library will likely be changed so that specific nodes such as `HXAGeometryNode` contain metadata.  
@@ -54,11 +55,11 @@ impl HXAFile {
     /// If a file has more than 1, they will need to be parsed manually.
     /// 
     /// 
-    pub fn get_first_geometry(&self) -> Option<(&HXANode, &HXAGeometryNode)> {
+    pub fn get_first_geometry(&self) -> Option<(&HXAGeometryNode, &Vec<HXAMeta>)> {
         for node in &self.node_array{
             match &node.node_type {
                 crate::enums::HXANodeType::Geometry(gnode) => {
-                    return Some((node,gnode));
+                    return Some((gnode,&node.meta_data));
                 },
                 _ => {},
             }
