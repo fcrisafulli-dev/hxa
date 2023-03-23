@@ -25,6 +25,7 @@ fn main() {
 
     dbg!(vertex_positions);
     dbg!(vertex_normals);
+    dbg!(vertex_stack);
 
     println!("Done");
 }
