@@ -120,8 +120,8 @@ impl HXALayer {
 
             out.push((
                 *vec_ref.get(idx).unwrap(),
-                *vec_ref.get(idx).unwrap(),
-                *vec_ref.get(idx).unwrap(),
+                *vec_ref.get(idx+1).unwrap(),
+                *vec_ref.get(idx+2).unwrap(),
             ));
         }
 
