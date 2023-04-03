@@ -128,6 +128,36 @@ impl HXALayer {
         out
     }
 
+    /// Gets and unwraps the underlying vector and returns a copy of the vector in sets of 2
+    /// # Panics
+    ///  - If the underlying vector is the wrong type
+    ///  - If the number of elements is not divisible by 2 
+    /// ## Recommendation
+    /// Use this function if following a `HxA` standard where  a `HXALayer` with a specific name always has a specific type
+    /// 
+    /// This was designed to make it easier to move data into `Vertex` objects from libraries such as `Vulkano` and `glium`
+    pub fn as_di_tup_vec_f32(&self) -> Vec<(f32,f32)>{
+        
+        let vec_ref = self.as_vec_f32();
+        if self.components != 2 {
+            panic!("Components must be exactly 2")
+        }
+
+        let num_tris = vec_ref.len()/2;
+        let mut out:Vec<(f32,f32)> = Vec::with_capacity(num_tris);
+
+        for multiplier in 0..num_tris{
+            let idx = multiplier * (self.components as usize);
+
+            out.push((
+                *vec_ref.get(idx).unwrap(),
+                *vec_ref.get(idx+1).unwrap()
+            ));
+        }
+
+        out
+    }
+
     pub fn try_as_vec_f64(&self) -> Option<&Vec<f64>>{
         match &self.layer_type{
             HXALayerDataType::DOUBLE(double_array) => return Some(double_array),
